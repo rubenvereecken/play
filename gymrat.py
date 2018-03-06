@@ -37,7 +37,10 @@ if __name__ == '__main__':
     controller = controller_cls(args.env_name, args.tracedir)
 
     for epoch_i in range(args.reps):
-        controller.play()
+        window_open = controller.play()
+        # Make sure it's reaaaally False
+        if window_open is False:
+            break
 
     controller.env.close()
 

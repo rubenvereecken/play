@@ -14,7 +14,7 @@ class HumanController:
         self.env_name = env_name
         self.env = gym.make(env_name)
         self.env = TraceRecordingWrapper(self.env, trace_path)
-        self.fps = 30
+        self.fps = 25
         self.cum_reward = 0
 
 
@@ -48,7 +48,7 @@ class HumanController:
             while self.controls.pause:
                 self.controls.capture_key_presses()
                 self.env.render()
-                time.sleep(1. / 10)
+                time.sleep(1. / self.fps)
 
             time.sleep(1. / self.fps)
 
@@ -74,6 +74,7 @@ class HumanVGDLController(HumanController):
 
         from controls import VGDLControls
         self.controls = VGDLControls(self.env.unwrapped.get_action_meanings())
+        self.env.render(mode='human')
 
 
 def determine_controller(env_name):
