@@ -39,14 +39,16 @@ class HumanController:
             if done:
                 logger.debug('===> Done!')
                 break
+
             if self.controls.restart:
                 logger.info('Requested restart')
                 self.controls.restart = False
                 break
 
             while self.controls.pause:
+                self.controls.capture_key_presses()
                 self.env.render()
-                time.sleep(1. / self.fps)
+                time.sleep(1. / 10)
 
             time.sleep(1. / self.fps)
 

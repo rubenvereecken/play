@@ -2,6 +2,7 @@ import itertools
 import numpy as np
 import logging
 logger = logging.getLogger(__name__)
+from time import time
 
 
 class PygletKeys:
@@ -54,6 +55,7 @@ class Controls:
         if key == self.return_key:
             self.restart = True
         elif key == self.escape_key:
+            print('Pressed pause')
             self.pause = not self.pause
         elif key in self.activated:
             self.activated[key] = True
@@ -142,12 +144,27 @@ class VGDLControls(Controls):
         self.escape_key = pygame.K_ESCAPE
         self.return_key = pygame.K_RETURN
 
+        # There is a serious need for throttling in Pygame that is not present in Pyglet
+        # Make sure a special button can only be pressed once every `throttle` seconds
+        self.last_special_press = 0
+        self.special_throttle_time = 1.
+
 
     def capture_key_presses(self):
         keys = pygame.key.get_pressed()
 
         for name, k in vars(PygameKeys).items():
             if name.startswith('__'): continue
+            if k in [self.escape_key, self.return_key] and keys[k]:
+                # Release a special key within throttle period
+                # to avoid invoking it multiple times
+                special_elapsed = time() - self.last_special_press
+                # logger.debug(special_elapsed > self.special_throttle_time, special_elapsed)
+                self.last_special_press = time()
+                if special_elapsed < self.special_throttle_time:
+                    self.on_key_release(k, None)
+                    continue
+
             if not keys[k]:
                 self.on_key_release(k, None)
             else:
