@@ -45,10 +45,23 @@ class Controls:
 
     def capture_key_presses(self):
         """
-        There are two models of processing key presses, depending on visualisation
-        framework. Pyglet uses event based, PyGame seems to favor manually
-        checking what's pressed.
+        There are two models of processing key presses, depending on framework.
+        Pyglet uses event based, PyGame seems to favor manually checking what's pressed.
         """
+
+
+    def on_key_press(self, key, mod):
+        if key == self.return_key:
+            self.restart = True
+        elif key == self.escape_key:
+            self.pause = not self.pause
+        elif key in self.activated:
+            self.activated[key] = True
+
+
+    def on_key_release(self, key, mod):
+        if key in self.activated:
+            self.activated[key] = False
 
 
     @property
@@ -74,23 +87,12 @@ class AtariControls(Controls):
         self.keys_to_action = { ATARI_ACTION_TO_KEYS[name]: code for name, code in \
                 self.available_actions.items()}
 
-        # Dict to keep tracked of pressed keys
+        # Dict to keep tracked of pressed keys; key code -> bool
         self.activated = { key: False for name, key in vars(PygletKeys).items() \
                 if not name.startswith('__') or name in ['RETURN', 'ESCAPE'] }
 
-
-    def on_key_press(self, key, mod):
-        if key == PygletKeys.RETURN:
-            self.restart = True
-        elif key == PygletKeys.ESCAPE:
-            self.pause = not self.pause
-        elif key in self.activated:
-            self.activated[key] = True
-
-
-    def on_key_release(self, key, mod):
-        if key in self.activated:
-            self.activated[key] = False
+        self.escape_key = PygletKeys.ESCAPE
+        self.return_key = PygletKeys.RETURN
 
 
     def perform_noop(self):
@@ -113,9 +115,9 @@ class PygameKeys:
 KEYS_TO_VGDL_ACTION = {
         # Note how this noop is spelled different from the Atari one
         tuple(): 'NO_OP',
-        (PygameKeys.SPACE,): 'SPACE',
-        (PygameKeys.RIGHT,): 'RIGHT', (PygameKeys.LEFT,): 'LEFT',
-        (PygameKeys.DOWN,): 'DOWN', (PygameKeys.UP,): 'UP',
+        (pygame.K_SPACE,): 'SPACE',
+        (pygame.K_RIGHT,): 'RIGHT', (pygame.K_LEFT,): 'LEFT',
+        (pygame.K_DOWN,): 'DOWN', (pygame.K_UP,): 'UP',
 }
 
 for k, v in list(KEYS_TO_VGDL_ACTION.items()):
@@ -137,12 +139,19 @@ class VGDLControls(Controls):
         self.activated = { key: False for name, key in vars(PygameKeys).items() \
                 if not name.startswith('__') or name in ['RETURN', 'ESCAPE'] }
 
+        self.escape_key = pygame.K_ESCAPE
+        self.return_key = pygame.K_RETURN
+
 
     def capture_key_presses(self):
         keys = pygame.key.get_pressed()
 
-        for k, v in self.activated.items():
-            self.activated[k] = keys[k]
+        for name, k in vars(PygameKeys).items():
+            if name.startswith('__'): continue
+            if not keys[k]:
+                self.on_key_release(k, None)
+            else:
+                self.on_key_press(k, None)
 
 
     def perform_noop(self):
