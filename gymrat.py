@@ -11,7 +11,7 @@ import logging
 import gym
 from gym_recording.wrappers import TraceRecordingWrapper
 
-from atari import HumanAtariController
+from human import determine_controller
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -32,7 +32,9 @@ if __name__ == '__main__':
     args.tracedir = os.path.join(args.tracedir, args.env_name)
     os.makedirs(args.tracedir, exist_ok=True)
 
-    controller = HumanAtariController(args.env_name, args.tracedir)
+
+    controller_cls = determine_controller(args.env_name)
+    controller = controller_cls(args.env_name, args.tracedir)
 
     for epoch_i in range(args.reps):
         controller.play()
