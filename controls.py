@@ -12,7 +12,6 @@ class Keys:
     RIGHT = 0xff00 + 83
     DOWN = 0xff00 + 84
 
-# AA = AtariActions
 KEYS_TO_ATARI_ACTION = {
         tuple(): 'NOOP',
         (Keys.SPACE,): 'FIRE',
@@ -39,6 +38,10 @@ class Controls:
         self.action = 0
         self.restart = False
         self.pause = False
+
+        # Dict to keep tracked of pressed keys
+        self.activated = { key: False for name, key in vars(Keys).items() \
+                if not name.startswith('__') or name in ['RETURN', 'ESCAPE'] }
 
 
     def on_key_press(self, key, mod):
@@ -75,13 +78,36 @@ class AtariControls(Controls):
     def __init__(self, action_selection):
         super().__init__()
         # action_selection should be list of keys corresponding to AtariActions
-        self.activated = { key: False for name, key in vars(Keys).items() \
-                if not name.startswith('__') or name in ['RETURN', 'ESCAPE'] }
-
         self.available_actions = dict(zip(action_selection, range(len(action_selection))))
+        # Maps a key combo to a Gym action (an action index)
         self.keys_to_action = { ATARI_ACTION_TO_KEYS[name]: code for name, code in \
                 self.available_actions.items()}
 
 
     def perform_noop(self):
         return self.available_actions['NOOP']
+
+
+KEYS_TO_VGDL_ACTION = {
+        # Note how this noop is spelled different from the Atari one
+        tuple(): 'NO_OP',
+        (Keys.SPACE,): 'SPACE',
+        (Keys.RIGHT,): 'RIGHT', (Keys.LEFT,): 'LEFT',
+        (Keys.DOWN,): 'DOWN', (Keys.UP,): 'UP',
+}
+
+VGDL_ACTION_TO_KEYS = { v: k for k, v in KEYS_TO_ATARI_ACTION.items() }
+
+
+class VGDLControls(Controls):
+    def __init__(self, action_selection):
+        super().__init__()
+        # action_selection should be list of keys corresponding to VGDL actions
+        self.available_actions = dict(zip(action_selection, range(len(action_selection))))
+        # Maps a key combo to a Gym action (an action index)
+        self.keys_to_action = { VGDL_ACTION_TO_KEYS[name]: code for name, code in \
+                self.available_actions.items()}
+
+
+    def perform_noop(self):
+        return self.available_actions['NO_OP']
