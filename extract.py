@@ -1,6 +1,7 @@
 from gym_recording import playback
 import numpy as np
 import argparse
+import copy
 
 parser = argparse.ArgumentParser()
 parser.add_argument('path', type=str)
@@ -9,7 +10,8 @@ args = parser.parse_args()
 eps = {}
 
 def handle_episode(o, a, r):
-    eps['o'] = np.copy(o)
+    # It is paramount the observation is deep copied
+    eps['o'] = copy.deepcopy(o)
     eps['a'] = np.copy(a)
     eps['r'] = np.copy(r)
 
