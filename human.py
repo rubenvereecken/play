@@ -14,7 +14,9 @@ class HumanController:
     def __init__(self, env_name, trace_path):
         self.env_name = env_name
         self.env = gym.make(env_name)
-        self.env = AtariObservationWrapper(self.env)
+        if not env_name.startswith('vgdl'):
+            logger.debug('Assuming Atari env, enable AtariObservationWrapper')
+            self.env = AtariObservationWrapper(self.env)
         self.env = TraceRecordingWrapper(self.env, trace_path)
         self.fps = 25
         self.cum_reward = 0
