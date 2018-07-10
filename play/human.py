@@ -61,7 +61,7 @@ class HumanAtariController(HumanController):
     def __init__(self, env_name, *args):
         super().__init__(env_name, *args)
 
-        from controls import AtariControls
+        from .controls import AtariControls
         self.controls = AtariControls(self.env.unwrapped.get_action_meanings())
 
         # Render once to initialize the viewer
@@ -76,7 +76,7 @@ class HumanVGDLController(HumanController):
     def __init__(self, env_name, *args):
         super().__init__(env_name, *args)
 
-        from controls import VGDLControls
+        from .controls import VGDLControls
         self.controls = VGDLControls(self.env.unwrapped.get_action_meanings())
         self.env.render(mode='human')
 

@@ -16,8 +16,9 @@ from human import determine_controller
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
+def main():
+    parser = argparse.ArgumentParser(
+        description='Allows human play of Atari and pre-registered VGDL games')
     parser.add_argument('env_name', type=str)
     parser.add_argument('--reps', default=1, type=int)
     parser.add_argument('--tracedir', type=str)
@@ -44,3 +45,6 @@ if __name__ == '__main__':
 
     controller.env.close()
 
+
+if __name__ == '__main__':
+    main()
