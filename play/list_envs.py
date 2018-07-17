@@ -7,7 +7,10 @@ def list_envs():
     return env_names
 
 
-if __name__ == '__main__':
+def main():
     envs = list_envs()
     for env in envs:
         print(env)
+
+if __name__ == '__main__':
+    main()

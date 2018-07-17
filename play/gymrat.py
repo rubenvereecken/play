@@ -11,7 +11,7 @@ import logging
 import gym
 from gym_recording.wrappers import TraceRecordingWrapper
 
-from human import determine_controller
+from .human import determine_controller
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
