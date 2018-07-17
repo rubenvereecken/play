@@ -7,7 +7,8 @@ class RightMovingJumpingAvatar(MovingAvatar):
     Only moves and jumps to the right
     """
 
-    def declare_possible_actions(self):
+    @classmethod
+    def declare_possible_actions(cls):
         from pygame.locals import K_RIGHT, K_SPACE
         actions = {}
         actions["RIGHT"] = K_RIGHT
