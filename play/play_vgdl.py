@@ -27,7 +27,8 @@ def register_vgdl_env(domain_file, level_file):
         kwargs={
             'game_file': domain_file,
             'level_file': level_file,
-            'block_size': 24
+            'block_size': 24,
+            'obs_type': 'features',
         },
         timestep_limit=1000,
         nondeterministic=True

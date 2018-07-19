@@ -116,11 +116,13 @@ class PygameKeys:
 
 
 KEYS_TO_VGDL_ACTION = {
-        # Note how this noop is spelled different from the Atari one
-        tuple(): 'NO_OP',
-        (pygame.K_SPACE,): 'SPACE',
-        (pygame.K_RIGHT,): 'RIGHT', (pygame.K_LEFT,): 'LEFT',
-        (pygame.K_DOWN,): 'DOWN', (pygame.K_UP,): 'UP',
+    # Note how this noop is spelled different from the Atari one
+    tuple(): 'NO_OP',
+    (pygame.K_SPACE,): 'SPACE',
+    (pygame.K_RIGHT,): 'RIGHT', (pygame.K_LEFT,): 'LEFT',
+    (pygame.K_DOWN,): 'DOWN', (pygame.K_UP,): 'UP',
+    (pygame.K_SPACE, pygame.K_RIGHT): 'SPACE_RIGHT',
+    (pygame.K_SPACE, pygame.K_LEFT): 'SPACE_LEFT',
 }
 
 for k, v in list(KEYS_TO_VGDL_ACTION.items()):
