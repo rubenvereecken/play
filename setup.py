@@ -9,7 +9,7 @@ setup(
     url='',
     packages=find_packages(),
     # packages=['play'],
-    install_requires=['gym', 'gym_vgdl'],
+    install_requires=['gym', 'gym_vgdl', 'gym_recording'],
     entry_points={
         'console_scripts': [
             'play-vgdl = play.play_vgdl:main',

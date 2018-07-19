@@ -3,6 +3,7 @@ import numpy as np
 import logging
 logger = logging.getLogger(__name__)
 from time import time
+from typing import Union, List, Dict, Tuple
 
 
 class PygletKeys:
@@ -129,13 +130,17 @@ VGDL_ACTION_TO_KEYS = { v: k for k, v in KEYS_TO_VGDL_ACTION.items() }
 
 
 class VGDLControls(Controls):
-    def __init__(self, action_selection):
+    def __init__(self, action_selection: List[str]):
         super().__init__()
         # action_selection should be list of keys corresponding to VGDL actions
-        self.available_actions = dict(zip(action_selection, range(len(action_selection))))
+        self.available_actions: Dict[str, int] \
+            = dict(zip(action_selection, range(len(action_selection))))
         # Maps a key combo to a Gym action (an action index)
-        self.keys_to_action = { VGDL_ACTION_TO_KEYS[name]: code for name, code in \
-                self.available_actions.items()}
+        self.keys_to_action: Dict[Tuple, int] = \
+            { VGDL_ACTION_TO_KEYS[name]: code \
+             for name, code in self.available_actions.items()}
+        print(self.available_actions)
+        print(self.keys_to_action)
 
         # Dict to keep tracked of pressed keys
         self.activated = { key: False for name, key in vars(PygameKeys).items() \
