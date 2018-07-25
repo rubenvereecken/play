@@ -9,11 +9,13 @@ class RightMovingJumpingAvatar(MovingAvatar):
 
     @classmethod
     def declare_possible_actions(cls):
+        # TODO port
+        from vgdl.core import Action
         from pygame.locals import K_RIGHT, K_SPACE
         actions = {}
-        actions["RIGHT"] = K_RIGHT
-        actions["SPACE"] = K_SPACE
-        actions["NO_OP"] = 0
+        actions["RIGHT"] = Action(K_RIGHT)
+        actions["SPACE"] = Action(K_SPACE)
+        actions["NO_OP"] = Action()
         return actions
 
 
@@ -30,4 +32,5 @@ class RightMovingJumpingAvatar(MovingAvatar):
             self.physics.activeMovement(self, RIGHT, jump_size)
         else:
             action = self._readAction(game)
+            action = action.as_force()
             self.physics.activeMovement(self, action)
