@@ -16,7 +16,7 @@ from .human import HumanVGDLController
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
-def register_vgdl_env(domain_file, level_file):
+def register_vgdl_env(domain_file, level_file, observer=None):
     from gym.envs.registration import register
     level_name = '.'.join(os.path.basename(level_file).split('.')[:-1])
     env_name = 'vgdl_{}-v0'.format(level_name)
@@ -28,9 +28,9 @@ def register_vgdl_env(domain_file, level_file):
             'game_file': domain_file,
             'level_file': level_file,
             'block_size': 24,
-            'obs_type': 'features',
+            'obs_type': observer or 'features',
         },
-        timestep_limit=1000,
+        timestep_limit=10000,
         nondeterministic=True
     )
 
@@ -44,33 +44,45 @@ def main():
     )
     parser.add_argument('levelfile', type=str)
     parser.add_argument('--domainfile', '-d', type=str, default=None)
-    parser.add_argument('--ontology', '-m', type=str, default=None)
+    parser.add_argument('--ontology', '-m', type=str, help="Python module for the game description")
+    parser.add_argument('--observer', '-s', type=str,
+                        help="A vgdl.StateObserver class, format pkg.module.Class")
     parser.add_argument('--reps', default=1, type=int)
     parser.add_argument('--tracedir', type=str)
 
     args = parser.parse_args()
+
+    if args.ontology is not None:
+        import importlib
+        module = importlib.import_module(args.ontology)
+        import vgdl
+        vgdl.registry.register_all(module)
+
+    if args.observer is not None:
+        import importlib
+        name_bits = args.observer.split('.')
+        module_name = '.'.join(name_bits[:-1])
+        class_name = name_bits[-1]
+        module = importlib.import_module(module_name)
+        observer_cls = getattr(module, class_name)
+    else:
+        observer_cls = None
 
     if args.domainfile is None:
         # rely on naming convention to figure out domain file
         args.domainfile = os.path.join(os.path.dirname(args.levelfile),
                                        os.path.basename(args.levelfile).split('_')[0] + '.txt')
 
-    env_name = register_vgdl_env(args.domainfile, args.levelfile)
+    env_name = register_vgdl_env(args.domainfile, args.levelfile, observer_cls)
     # env_name = '.'.join(os.path.basename(args.levelfile).split('.')[:-1])
 
     logging.basicConfig(format='%(levelname)s:%(name)s %(message)s',
             level=logging.DEBUG)
 
     if args.tracedir is None:
-        args.tracedir = os.path.join(THIS_DIR, 'traces')
+        args.tracedir = os.path.join(THIS_DIR, '..', 'traces')
     args.tracedir = os.path.join(args.tracedir, env_name)
     os.makedirs(args.tracedir, exist_ok=True)
-
-    if not args.ontology is None:
-        import importlib
-        module = importlib.import_module(args.ontology)
-        import vgdl
-        vgdl.registry.register_all(module)
 
     controller_cls = HumanVGDLController
     controller = controller_cls(env_name, args.tracedir)

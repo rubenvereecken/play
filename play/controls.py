@@ -43,6 +43,7 @@ class Controls:
         self.action = 0
         self.restart = False
         self.pause = False
+        self.debug = False
 
 
     def capture_key_presses(self):
@@ -55,9 +56,12 @@ class Controls:
     def on_key_press(self, key, mod):
         if key == self.return_key:
             self.restart = True
-        elif key == self.escape_key:
-            print('Pressed pause')
+        elif key == self.pause_key:
+            print('PAUSE?')
             self.pause = not self.pause
+        elif key == self.debug_key:
+            print('DEBUG')
+            self.debug = not self.debug
         elif key in self.activated:
             self.activated[key] = True
 
@@ -104,15 +108,17 @@ class AtariControls(Controls):
 
 import pygame
 
+# TODO do we really need these? Is this so we don't track too many?
 class PygameKeys:
     RETURN = pygame.K_RETURN
-    SPACE = pygame.K_SPACE
     ESCAPE = pygame.K_ESCAPE
+    PAUSE = pygame.K_PAUSE
 
     LEFT = pygame.K_LEFT
     UP = pygame.K_UP
     RIGHT = pygame.K_RIGHT
     DOWN = pygame.K_DOWN
+    SPACE = pygame.K_SPACE
 
 
 KEYS_TO_VGDL_ACTION = {
@@ -146,23 +152,28 @@ class VGDLControls(Controls):
 
         # Dict to keep tracked of pressed keys
         self.activated = { key: False for name, key in vars(PygameKeys).items() \
-                if not name.startswith('__') or name in ['RETURN', 'ESCAPE'] }
+                if not name.startswith('__') or name in ['RETURN', 'ESCAPE', 'PAUSE'] }
 
-        self.escape_key = pygame.K_ESCAPE
+        self.pause_key = pygame.K_PAUSE
         self.return_key = pygame.K_RETURN
+        self.debug_key = pygame.K_ESCAPE
+        self.escape_key = pygame.K_ESCAPE
+        self.special_keys = [self.pause_key, self.escape_key, self.return_key, self.debug_key]
 
         # There is a serious need for throttling in Pygame that is not present in Pyglet
         # Make sure a special button can only be pressed once every `throttle` seconds
         self.last_special_press = 0
-        self.special_throttle_time = 1.
+        self.special_throttle_time = .25
 
 
     def capture_key_presses(self):
         keys = pygame.key.get_pressed()
+        # Need to flush events while paused, doesn't seem to harm vgdl.core events
+        pygame.event.pump()
 
         for name, k in vars(PygameKeys).items():
             if name.startswith('__'): continue
-            if k in [self.escape_key, self.return_key] and keys[k]:
+            if k in self.special_keys and keys[k]:
                 # Release a special key within throttle period
                 # to avoid invoking it multiple times
                 special_elapsed = time() - self.last_special_press

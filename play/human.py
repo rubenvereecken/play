@@ -49,12 +49,34 @@ class HumanController:
                 self.controls.restart = False
                 break
 
+            if self.controls.debug:
+                self.debug()
+                self.controls.debug = False
+                continue
+
             while self.controls.pause:
                 self.controls.capture_key_presses()
                 self.env.render()
                 time.sleep(1. / self.fps)
 
             time.sleep(1. / self.fps)
+
+
+    def debug(self, *args, **kwargs):
+        # Convenience debug breakpoint
+        env = self.env.unwrapped
+        game = env.game
+        observer = env.observer
+        obs = env.observer.get_observation()
+        sprites = game.sprite_registry
+        state = game.getGameState()
+        all = dict(
+            env=env, game=game, observer=observer,
+            obs=obs, sprites=sprites, state=state
+        )
+        print(all)
+
+        import ipdb; ipdb.set_trace()
 
 
 class HumanAtariController(HumanController):
