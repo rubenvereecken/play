@@ -147,8 +147,8 @@ class VGDLControls(Controls):
         self.keys_to_action: Dict[Tuple, int] = \
             { VGDL_ACTION_TO_KEYS[name]: code \
              for name, code in self.available_actions.items()}
-        print(self.available_actions)
-        print(self.keys_to_action)
+        # print(self.available_actions)
+        # print(self.keys_to_action)
 
         # Dict to keep tracked of pressed keys
         self.activated = { key: False for name, key in vars(PygameKeys).items() \
@@ -191,3 +191,31 @@ class VGDLControls(Controls):
 
     def perform_noop(self):
         return self.available_actions['NO_OP']
+
+
+class ReplayVGDLControls(VGDLControls):
+    def __init__(self, action_selection, replay_actions: List['Action']):
+        super().__init__(action_selection)
+
+        self.replay_actions = replay_actions
+        self.action_idx = 0
+
+
+    def capture_key_presses(self):
+        # CAREFUL this is not idempotent
+
+        # Capture special key presses, unset other ones
+        super().capture_key_presses()
+        self.activated = {k: False for k in self.activated.keys()}
+
+        if self.action_idx > len(self.replay_actions):
+            # Quit
+            self.restart = True
+            return
+
+        current_action = self.replay_actions[self.action_idx]
+        for key in current_action.keys:
+            self.activated[key] = True
+        self.action_idx += 1
+
+

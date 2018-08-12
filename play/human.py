@@ -11,13 +11,14 @@ from wrappers import AtariObservationWrapper
 
 
 class HumanController:
-    def __init__(self, env_name, trace_path):
+    def __init__(self, env_name, trace_path=None):
         self.env_name = env_name
         self.env = gym.make(env_name)
         if not env_name.startswith('vgdl'):
             logger.debug('Assuming Atari env, enable AtariObservationWrapper')
             self.env = AtariObservationWrapper(self.env)
-        self.env = TraceRecordingWrapper(self.env, trace_path)
+        if trace_path:
+            self.env = TraceRecordingWrapper(self.env, trace_path)
         self.fps = 25
         self.cum_reward = 0
 
@@ -50,8 +51,8 @@ class HumanController:
                 break
 
             if self.controls.debug:
-                self.debug()
                 self.controls.debug = False
+                self.debug()
                 continue
 
             while self.controls.pause:
@@ -100,6 +101,17 @@ class HumanVGDLController(HumanController):
 
         from .controls import VGDLControls
         self.controls = VGDLControls(self.env.unwrapped.get_action_meanings())
+        self.env.render(mode='human')
+
+
+class ReplayVGDLController(HumanController):
+    def __init__(self, env_name, replay_actions, *args):
+        super().__init__(env_name, *args)
+        self.replay_actions = replay_actions
+
+        from .controls import ReplayVGDLControls
+        self.controls = ReplayVGDLControls(self.env.unwrapped.get_action_meanings(),
+                                     replay_actions)
         self.env.render(mode='human')
 
 
