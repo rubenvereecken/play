@@ -16,7 +16,7 @@ from .human import HumanVGDLController
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
-def register_vgdl_env(domain_file, level_file, observer=None):
+def register_vgdl_env(domain_file, level_file, observer=None, blocksize=None):
     from gym.envs.registration import register
     level_name = '.'.join(os.path.basename(level_file).split('.')[:-1])
     env_name = 'vgdl_{}-v0'.format(level_name)
@@ -27,7 +27,7 @@ def register_vgdl_env(domain_file, level_file, observer=None):
         kwargs={
             'game_file': domain_file,
             'level_file': level_file,
-            'block_size': 24,
+            'block_size': blocksize or 24,
             'obs_type': observer or 'features',
         },
         timestep_limit=10000,
@@ -48,6 +48,7 @@ def main():
     parser.add_argument('--observer', '-s', type=str,
                         help="A vgdl.StateObserver class, format pkg.module.Class")
     parser.add_argument('--reps', default=1, type=int)
+    parser.add_argument('--blocksize', '-b', type=int)
     parser.add_argument('--tracedir', type=str)
 
     args = parser.parse_args()
@@ -73,7 +74,8 @@ def main():
         args.domainfile = os.path.join(os.path.dirname(args.levelfile),
                                        os.path.basename(args.levelfile).split('_')[0] + '.txt')
 
-    env_name = register_vgdl_env(args.domainfile, args.levelfile, observer_cls)
+    env_name = register_vgdl_env(args.domainfile, args.levelfile, observer_cls,
+                                 args.blocksize)
     # env_name = '.'.join(os.path.basename(args.levelfile).split('.')[:-1])
 
     logging.basicConfig(format='%(levelname)s:%(name)s %(message)s',
