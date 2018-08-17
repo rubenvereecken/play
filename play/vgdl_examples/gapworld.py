@@ -32,5 +32,5 @@ class RightMovingJumpingAvatar(MovingAvatar):
             self.physics.activeMovement(self, RIGHT, jump_size)
         else:
             action = self._readAction(game)
-            action = action.as_force()
+            action = action.as_vector()
             self.physics.activeMovement(self, action)

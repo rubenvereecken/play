@@ -208,7 +208,7 @@ class ReplayVGDLControls(VGDLControls):
         super().capture_key_presses()
         self.activated = {k: False for k in self.activated.keys()}
 
-        if self.action_idx > len(self.replay_actions):
+        if self.action_idx >= len(self.replay_actions):
             # Quit
             self.restart = True
             return
@@ -217,5 +217,3 @@ class ReplayVGDLControls(VGDLControls):
         for key in current_action.keys:
             self.activated[key] = True
         self.action_idx += 1
-
-
