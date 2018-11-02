@@ -23,7 +23,7 @@ class HumanController:
         self.cum_reward = 0
 
 
-    def play(self):
+    def play(self, pause_on_finish=False):
         self.env.reset()
 
         for step_i in itertools.count():
@@ -45,7 +45,11 @@ class HumanController:
 
             if done:
                 logger.debug('===> Done!')
-                break
+                if pause_on_finish:
+                    self.controls.pause = True
+                    pause_on_finish = False
+                else:
+                    break
 
             if self.controls.restart:
                 logger.info('Requested restart')

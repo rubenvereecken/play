@@ -17,9 +17,12 @@ from .human import HumanVGDLController
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def register_vgdl_env(domain_file, level_file, observer=None, blocksize=None):
-    from gym.envs.registration import register
+    from gym.envs.registration import register, registry
     level_name = '.'.join(os.path.basename(level_file).split('.')[:-1])
     env_name = 'vgdl_{}-v0'.format(level_name)
+
+    # Overwrite whatever was there before
+    # del registry.env_specs[env_name]
 
     register(
         id=env_name,
@@ -50,6 +53,8 @@ def main():
     parser.add_argument('--reps', default=1, type=int)
     parser.add_argument('--blocksize', '-b', type=int)
     parser.add_argument('--tracedir', type=str)
+    parser.add_argument('--pause_on_finish', dest='pause_on_finish',
+                        action='store_true', default=False)
 
     args = parser.parse_args()
 
@@ -90,7 +95,7 @@ def main():
     controller = controller_cls(env_name, args.tracedir)
 
     for epoch_i in range(args.reps):
-        window_open = controller.play()
+        window_open = controller.play(args.pause_on_finish)
         # Make sure it's reaaaally False
         if window_open is False:
             break
